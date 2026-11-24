@@ -9,7 +9,32 @@
 <body>
     {% include "header.html" %}
     <main>
-        <h1>Bem-vindo ao Do Campo a Mesa</h1>
+        <h1>Bem-vindo ao Do Campo à Mesa</h1>
+    <section>
+        
+        
+    <nav aria-label="Categorias">
+        <a href="{{ url_for('index') }}">Todas</a>
+
+    {% for c in categorias %}
+        <a href="{{ url_for('index', categoria=c['categoria']) }}">{{ c["categoria"] }}</a>
+    {% endfor %}
+    </nav>
+
+    <h2>Produtos</h2>
+
+    <div class="lista_produtos">
+        {% for produto in produtos %}
+        <a href="{{ url_for('produto', produto_id=produto.id) }}">
+            <article class="card-produto">
+                <h3>{{ produto.nome }}</h3>
+                <p>{{ produto.produtor }}</p>
+                <p>R$ {{ "%.2f"|format(produto.preco) }} / {{ produto.unidade }}</p>
+            </article>
+        </a>
+        {% endfor %}
+    </div>
+</section>
     </main>
 </body>
 </html>
