@@ -35,11 +35,11 @@ def index():
 
 @app.route("/produtos/<int:produto_id>")
 def produto(produto_id):
-    produto_encontrado = None
-
-    for item in PRODUTOS:
-        if item["id"] == produto_id:
-            produto_encontrado = item
+    conexao = conectar()
+    produto_encontrado = conexao.execute(
+        "SELECT * FROM produtos WHERE id = ?", (produto_id,)
+    ).fetchone()
+    conexao.close()
 
     if produto_encontrado is None:
         abort(404)
