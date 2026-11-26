@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, abort
+from flask import Flask, render_template, request, abort, redirect, url_for
 import sqlite3
 
 def conectar():
@@ -58,6 +58,28 @@ def perfil():
 def carrinho():
     return render_template("carrinho.html")
 
+@app.route("/cadastrar_produto", methods=["GET", "POST"])
+def cadastro_produto():
+    conexao = conectar()
+    categorias = conexao.execute("SELECT DISTINCT categoria FROM produtos").fetchall()
+    conexao.close()
+
+    if request.method == "POST":
+        conexao = conectar()
+        conexao.execute(
+            "INSERT INTO produtos (nome, produtor, preco, unidade, categoria) VALUES (?, ?, ?, ?, ?)",
+        (
+                request.form["nome"],
+                "nao informado",
+                float(request.form["preco"]),
+                request.form["unidade"],
+                request.form["categoria"],
+        )
+        )
+        conexao.commit()
+        conexao.close()
+        return redirect(url_for('index'))
+    return render_template("cadastro_produto.html", categorias=categorias)
 
 if __name__ == "__main__":
     app.run(debug=True)
