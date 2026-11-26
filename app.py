@@ -1,4 +1,5 @@
 from flask import Flask, render_template, request, abort, redirect, url_for
+from werkzeug.security import generate_password_hash, check_password_hash
 import sqlite3
 
 def conectar():
@@ -80,6 +81,36 @@ def cadastro_produto():
         conexao.close()
         return redirect(url_for('index'))
     return render_template("cadastro_produto.html", categorias=categorias)
+
+
+@app.route("/cadastrar_usuario", methods=["GET", "POST"])
+def cadastrar_usuario():
+    if request.method == "POST":
+        nome = request.form["nome"]
+        email = request.form["email"]
+        senha = request.form["senha"]
+        tipo = request.form["tipo"]
+
+        senha_hash = generate_password_hash(senha)
+
+        if tipo not in ("agricultor", "consumidor"):
+            abort(400)
+
+        conexao = conectar()
+        try:
+            conexao.execute(
+                "INSERT INTO usuarios (nome, email, senha_hash, tipo) VALUES (?, ?, ?, ?)",
+                (nome, email, senha_hash, tipo)
+            )
+            conexao.commit()
+        except sqlite3.IntegrityError:
+            return "Email já cadastrado!"
+        finally:
+            conexao.close()
+
+        return redirect(url_for('index'))
+
+    return render_template("cadastrar_usuario.html")
 
 if __name__ == "__main__":
     app.run(debug=True)
